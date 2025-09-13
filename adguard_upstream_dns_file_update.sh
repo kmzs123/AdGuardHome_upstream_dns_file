@@ -233,7 +233,7 @@ echo
 if [ -n "$(git -C $temp_file status --porcelain)" ]; then
     echo "检测到变更。正在提交..."
     git -C "$temp_file" add .
-    git -C "$temp_file" commit -m "更新 $(date "+%Y-%m-%d %H:%M:%S")"
+    git -C "$temp_file" commit -S -m "更新 $(date "+%Y-%m-%d %H:%M:%S")"
     echo "提交完成。"
     echo "注意输入推送密码..."
     git -C "$temp_file" push
