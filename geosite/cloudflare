@@ -1,0 +1,56 @@
+domain:argotunnel.com
+domain:cf-ipfs.com
+domain:cf-ns.com @cn
+domain:cf-ns.net @cn
+domain:cf-ns.site @cn
+domain:cf-ns.tech @cn
+domain:cfargotunnel.com
+domain:cfl.re
+domain:cftest5.cn @cn
+domain:cftest6.cn @cn
+domain:cftest7.com @cn
+domain:cftest8.com @cn
+domain:cloudflare-cn.com @cn
+domain:cloudflare-dns.com
+domain:cloudflare-ech.com
+domain:cloudflare-esni.com
+domain:cloudflare-gateway.com
+domain:cloudflare-ipfs.com
+domain:cloudflare-quic.com
+domain:cloudflare.com
+domain:cloudflare.net
+domain:cloudflare.tv
+domain:cloudflareaccess.com
+domain:cloudflareanycast.net @cn
+domain:cloudflareapps.com
+domain:cloudflarebolt.com
+domain:cloudflarechina.cn @cn
+domain:cloudflareclient.com
+domain:cloudflarecn.net @cn
+domain:cloudflareglobal.net @cn
+domain:cloudflareinsights-cn.com @cn
+domain:cloudflareinsights.com
+domain:cloudflareok.com
+domain:cloudflarepartners.com
+domain:cloudflareperf.com @cn
+domain:cloudflareportal.com
+domain:cloudflarepreview.com
+domain:cloudflareprod.com @cn
+domain:cloudflareresolve.com
+domain:cloudflaressl.com
+domain:cloudflarestaging.com @cn
+domain:cloudflarestatus.com
+domain:cloudflarestorage.com
+domain:cloudflarestoragegw.com @cn
+domain:cloudflarestream.com
+domain:cloudflaretest.com
+domain:cloudflarewarp.com
+domain:every1dns.net
+domain:isbgpsafeyet.com
+domain:one.one.one
+domain:pacloudflare.com
+domain:pages.dev
+domain:trycloudflare.com
+domain:videodelivery.net
+domain:warp.plus
+domain:workers.dev

@@ -1,0 +1,13 @@
+domain:gog-statics.com
+domain:gog.com
+full:gog-cdn-fastly.gog.com @cn
+full:gog-cdn.akamaized.net @cn
+full:gog.qtlglb.com @cn
+full:gogalaxy.gog-statics.com @cn
+full:menu-static.gog-statics.com @cn
+full:productcard.gog-statics.com @cn
+full:static-login.gog-statics.com @cn
+full:www4-static.gog-statics.com @cn
+regex:^cdn-akamai-.+\.gog-services\.com$ @cn
+regex:^gog-cdn-.+\.footprint\.net$ @cn
+regex:^images(-\d)?\.gog-statics\.com$ @cn

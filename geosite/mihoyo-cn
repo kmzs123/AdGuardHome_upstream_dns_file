@@ -1,0 +1,16 @@
+domain:benghuai.com @cn
+domain:bh3.com @cn
+domain:bhsr.com @cn
+domain:juequling.com @cn
+domain:mhystatic.com @cn
+domain:mhyurl.cn @cn
+domain:mihayo.com @cn
+domain:mihayou.com @cn
+domain:mihoyo.com @cn
+domain:mihoyocg.com @cn
+domain:mihoyogift.com @cn
+domain:mihoyomall.com @cn
+domain:miyoushe.com @cn
+domain:themisweeps.com @cn
+domain:yuanshen.com @cn
+regex:^.+-mihayo\.akamaized\.net$ @cn

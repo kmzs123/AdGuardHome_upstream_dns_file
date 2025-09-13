@@ -1,0 +1,6 @@
+domain:analytics.facebook.com @ads
+domain:graph-fallback.instagram.com @ads
+domain:graph.instagram.com @ads
+domain:graph.whatsapp.com @ads
+domain:graph.whatsapp.net @ads
+domain:pixel.facebook.com @ads

@@ -1,0 +1,45 @@
+domain:cdnst.net
+domain:cellmaps.com
+domain:cnspeedtest.cn @cn
+domain:ekahau.cloud
+domain:ekahau.com
+domain:fast.com
+domain:measurementlab.net
+domain:nperf.com
+domain:ookla.com
+domain:ooklaserver.net
+domain:open.cachefly.net
+domain:openspeedtest.com
+domain:pingtest.net
+domain:speed.cloudflare.com
+domain:speed.dler.io
+domain:speed.hinet.net
+domain:speed.nccu.edu.tw
+domain:speed.neu6.edu.cn @cn
+domain:speed.nju.edu.cn @cn
+domain:speed.nuaa.edu.cn @cn
+domain:speed.qlu.edu.cn @cn
+domain:speed.ujs.edu.cn @cn
+domain:speed2.hinet.net
+domain:speed5.ntu.edu.tw
+domain:speed6.ujs.edu.cn @cn
+domain:speedtest.cn @cn
+domain:speedtest.co
+domain:speedtest.im
+domain:speedtest.mfcyun.com @cn
+domain:speedtest.net
+domain:speedtest.shu.edu.cn @cn
+domain:speedtest.xaut.edu.cn @cn
+domain:speedtest.xfinity.com
+domain:speedtest6.shu.edu.cn @cn
+domain:speedtestcustom.com
+domain:test.nju.edu.cn @cn
+domain:test.ustc.edu.cn @cn
+domain:test6.nju.edu.cn @cn
+domain:test6.ustc.edu.cn @cn
+domain:testmy.net
+domain:webtest.net
+domain:xnfz.seu.edu.cn @cn
+full:hk-global-bgp.hkg.speedtest.yecaoyun.com @!cn
+full:www.speedtest.net.cdn.cloudflare.net
+regex:^speed\.(coe|open)\.ad\.[a-z]{2,6}\.prod\.hosts\.ooklaserver\.net$ @ads
