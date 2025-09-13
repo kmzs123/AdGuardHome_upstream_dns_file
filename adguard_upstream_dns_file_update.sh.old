@@ -1,0 +1,329 @@
+#!/bin/bash
+
+#temp_file=$(mktemp -d /tmp/ADG.XXXXX)
+temp_file=/root/geosite.git
+target_file=/root/Docker-compose/AdGuardHome/conf
+
+#-e https_proxy=127.0.0.1:10808 
+#https://ghfast.top/
+if ! wget https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat -O "$temp_file"/geosite.dat; then
+    echo "错误：下载规则文件失败！"
+    rm -f "$temp_file"/geosite.dat
+    exit 1
+fi
+
+#-e https_proxy=127.0.0.1:10808 
+#https://gh.cytus.tk/
+if ! wget https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 -O "$temp_file"/geo; then
+    echo "错误：下载geo解包工具失败！"
+    rm -f "$temp_file"/geo
+    exit 1
+fi
+chmod +x "$temp_file"/geo
+
+
+
+rm -rf "$temp_file"/geosite
+"$temp_file"/geo unpack site "$temp_file"/geosite.dat -d "$temp_file"/geosite
+
+
+
+cat > "$temp_file"/private << 'EOF'
+domain:mir3g70
+domain:rm2100dd
+EOF
+awk 1 "$temp_file"/geosite/private | awk '!seen[$0]++' >> "$temp_file"/private
+
+
+
+cat > "$temp_file"/direct1 << 'EOF'
+domain:360.cn
+domain:alidns.com
+domain:doh.pub
+domain:dot.pub
+domain:onedns.net
+EOF
+awk 1 "$temp_file"/geosite/apple-cn \
+      "$temp_file"/geosite/google-cn | \
+awk '!seen[$0]++' >> "$temp_file"/direct1
+
+
+
+cat > "$temp_file"/proxy << 'EOF'
+domain:1.ip.skk.moe
+EOF
+awk 1 "$temp_file"/geosite/gfw \
+      "$temp_file"/geosite/google \
+      "$temp_file"/geosite/greatfire | \
+awk '!seen[$0]++' >> "$temp_file"/proxy
+
+
+
+cat > "$temp_file"/direct2 << 'EOF'
+domain:2.ip.skk.moe
+domain:cytus.tk
+domain:deepseek.com
+domain:kmzs123.cf
+domain:kmzs123.cn
+domain:kmzs123.tk
+domain:kmzs123.top
+domain:ping0.cc
+domain:vmshell.com
+EOF
+grep -i -h "@cn" "$temp_file"/geosite/category-games > "$temp_file"/geosite/category-games@cn
+grep -i -h "@cn" "$temp_file"/geosite/* > "$temp_file"/geosite/@cn
+awk 1 "$temp_file"/geosite/category-games@cn \
+      "$temp_file"/geosite/china-list \
+      "$temp_file"/geosite/cn \
+      "$temp_file"/geosite/tld-cn \
+      "$temp_file"/geosite/win-update \
+      "$temp_file"/geosite/@cn \
+      "$temp_file"/geosite/*-cn | \
+awk '!seen[$0]++' >> "$temp_file"/direct2
+
+
+
+is_valid_domain() {
+    local domain="$1"
+    local allow_port="${2:-false}"
+    local allow_idn="${3:-false}"
+    local domain port labels label
+    
+    # 1. 处理端口号
+    if [[ "$allow_port" == "true" && "$domain" == *:* ]]; then
+        port="${domain##*:}"
+        domain="${domain%:*}"
+        
+        # 验证端口部分是否为数字且在合理范围内(1-65535)
+        if [[ ! "$port" =~ ^[0-9]+$ ]] || ((port < 1 || port > 65535)); then
+            return 1
+        fi
+    elif [[ "$domain" == *:* ]]; then
+        # 不允许端口但包含冒号
+        return 1
+    fi
+    
+    # 2. 处理IDN：如果需要支持国际化域名，将其转换为Punycode
+    if [[ "$allow_idn" == "true" ]]; then
+        # 检查是否有idn命令可用 (只检查一次)
+        if [[ -z "${HAS_IDN_CMD:-}" ]]; then
+            if command -v idn &> /dev/null; then
+                HAS_IDN_CMD=true
+            else
+                HAS_IDN_CMD=false
+            fi
+        fi
+        
+        if [[ "$HAS_IDN_CMD" == true ]]; then
+            # 使用idn转换
+            domain=$(idn -a --quiet "$domain" 2>/dev/null || echo "$domain")
+        else
+            # 如果没有idn命令，检查是否全部为ASCII字符
+            if [[ ! "$domain" =~ ^[a-zA-Z0-9.-]+$ ]]; then
+                return 1
+            fi
+        fi
+    else
+        # 如果不支持IDN，则检查是否全部为ASCII字符
+        if [[ ! "$domain" =~ ^[a-zA-Z0-9.-]+$ ]]; then
+            return 1
+        fi
+    fi
+    
+    # 3. 检查总长度
+    if ((${#domain} > 253)); then
+        return 1
+    fi
+    
+    # 4. 检查标签
+    # 处理空字符串或只有点的情况
+    if [[ -z "$domain" || "$domain" == "." ]]; then
+        return 1
+    fi
+    
+    # 使用点分割域名
+    IFS='.' read -ra labels <<< "$domain"
+    
+    # 遍历每个标签进行检查
+    for label in "${labels[@]}"; do
+        # 4.1 检查每个标签的长度
+        if ((${#label} > 63)); then
+            return 1
+        fi
+        
+        # 4.2 使用正则表达式检查标签内字符的合法性
+        # 规则：以数字或字母开头和结尾，中间可以是数字、字母或连字符
+        if [[ ! "$label" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
+            return 1
+        fi
+    done
+    
+    # 5. 如果所有检查都通过，则域名格式合法
+    return 0
+}
+
+
+
+
+convert_files() {
+	# 初始化计数器
+	local processed_lines=0
+	local skipped_regexp_lines=0
+	local skipped_regex_lines=0
+	local processed_full_lines=0
+	local processed_domain_lines=0
+	local removed_suffix_lines=0
+	local skipped_illegal_lines=0
+	local geosite_file="$1"
+	local adguard_home_file="$2"
+	shift 2  # 移除前两个参数
+	local custom_dns="$*"  # 将剩余所有参数合并为一个字符串，用空格分隔
+	
+	# 处理文件
+	while IFS= read -r line; do
+		# 删除以 'regexp:' 开头的行
+		if [[ "$line" =~ ^regexp: ]]; then
+			((skipped_regexp_lines++))
+			continue
+		fi
+
+		# 删除以 'regex:' 开头的行
+		if [[ "$line" =~ ^regex: ]]; then
+			((skipped_regex_lines++))
+			continue
+		fi
+
+		# 删除以 'full:' 开头的行中的 'full:'
+		if [[ "$line" =~ ^full: ]]; then
+			line="${line#full:}"
+			((processed_full_lines++))
+		fi
+
+		# 删除以 'domain:' 开头的行中的 'domain:'
+		if [[ "$line" =~ ^domain: ]]; then
+			line="${line#domain:}"
+			((processed_domain_lines++))
+		fi
+
+		# 移除行尾的 "空格@字符串" 模式
+		if [[ "$line" =~ [[:space:]]+@[^[:space:]]+$ ]]; then
+			line=$(echo "$line" | sed 's/[[:space:]]*@[^[:space:]]*$//')
+			((removed_suffix_lines++))
+		fi
+
+		# 跳过空行
+		[ -z "$line" ] && continue
+
+		# 转换为小写，去除两端空白
+		line="${line,,}"  # 转换为小写
+		line="${line#"${line%%[![:space:]]*}"}"  # 去除前导空白
+		line="${line%"${line##*[![:space:]]}"}"  # 去除尾部空白
+    
+		# 检查合法性后添加前缀和后缀
+		if is_valid_domain "$line" "false" "false"; then
+			echo "[/${line}/]$custom_dns"
+			((processed_lines++))
+		else
+			((skipped_illegal_lines++))
+			continue
+		fi
+		#echo "[/${line}/]$custom_dns"
+		#((processed_lines++))
+	done < "$geosite_file" > "$adguard_home_file"
+
+	# 输出处理统计信息
+	echo "处理完成统计:"
+	echo "- 跳过了 $skipped_regexp_lines 行 'regexp:' 开头的行"
+	echo "- 跳过了 $skipped_regex_lines 行 'regex:' 开头的行"
+	echo "- 处理了 $processed_full_lines 行 'full:' 开头的行"
+	echo "- 处理了 $processed_domain_lines 行 'domain:' 开头的行"
+	echo "- 处理了 $removed_suffix_lines 行 '空格@字符串' 结尾的行"
+	echo "- 跳过了 $skipped_illegal_lines 行非法的行"
+	echo "- 最终生成了 $processed_lines 行有效规则"
+	echo "- DNS服务器列表：$custom_dns"
+
+	# 检查是否成功处理了内容
+	if [ $processed_lines -eq 0 ]; then
+		echo "警告：未处理任何行，可能源文件格式有变化"
+	fi
+}
+
+time convert_files "$temp_file"/private "$temp_file"/private.txt 192.168.15.1 fd21:bda8:56ba::1
+time convert_files "$temp_file"/direct1 "$temp_file"/direct1.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+time convert_files "$temp_file"/proxy "$temp_file"/proxy.txt tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116' 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016'
+time convert_files "$temp_file"/direct2 "$temp_file"/direct2.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+
+#合并
+awk 1 "$temp_file"/private.txt "$temp_file"/direct1.txt "$temp_file"/proxy.txt "$temp_file"/direct2.txt > "$temp_file"/ADG.txt
+
+#去重
+awk -F'[][]' '!seen[$2]++' "$temp_file"/ADG.txt > "$target_file"/ADG.txt
+awk -F'[][]' '!seen[$2]++' "$temp_file"/ADG.txt > "$temp_file"/ADG_output.txt
+
+# 添加上游DNS服务器配置
+cat >> "$target_file"/ADG.txt << 'EOF'
+tcp://192.168.15.20:11114
+tcp://192.168.15.20:10014
+tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116
+tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016
+EOF
+
+
+echo
+echo "文件 $temp_file/geosite/private 有 $(awk 1 "$temp_file"/geosite/private | wc -l) 行"
+echo "文件 $temp_file/private.txt 有 $(awk 1 "$temp_file"/private.txt | wc -l) 行"
+echo
+echo "文件 $temp_file/geosite/apple-cn 有 $(awk 1 "$temp_file"/geosite/apple-cn | wc -l) 行"
+echo "文件 $temp_file/geosite/google-cn 有 $(awk 1 "$temp_file"/geosite/google-cn | wc -l) 行"
+echo "文件 $temp_file/direct1 有 $(awk 1 "$temp_file"/direct1 | wc -l) 行"
+echo "文件 $temp_file/direct1.txt 有 $(awk 1 "$temp_file"/direct1.txt | wc -l) 行"
+echo
+echo "文件 $temp_file/geosite/gfw 有 $(awk 1 "$temp_file"/geosite/gfw | wc -l) 行"
+echo "文件 $temp_file/geosite/google 有 $(awk 1 "$temp_file"/geosite/google | wc -l) 行"
+echo "文件 $temp_file/geosite/greatfire 有 $(awk 1 "$temp_file"/geosite/greatfire | wc -l) 行"
+echo "文件 $temp_file/proxy 有 $(awk 1 "$temp_file"/proxy | wc -l) 行"
+echo "文件 $temp_file/proxy.txt 有 $(awk 1 "$temp_file"/proxy.txt | wc -l) 行"
+echo
+echo "文件 $temp_file/geosite/category-games 有 $(awk 1 "$temp_file"/geosite/category-games | wc -l) 行"
+echo "文件 $temp_file/geosite/category-games@cn 有 $(awk 1 "$temp_file"/geosite/category-games@cn | wc -l) 行"
+echo "文件 $temp_file/geosite/china-list 有 $(awk 1 "$temp_file"/geosite/china-list | wc -l) 行"
+echo "文件 $temp_file/geosite/cn 有 $(awk 1 "$temp_file"/geosite/cn | wc -l) 行"
+echo "文件 $temp_file/geosite/tld-cn 有 $(awk 1 "$temp_file"/geosite/tld-cn | wc -l) 行"
+echo "文件 $temp_file/geosite/win-update 有 $(awk 1 "$temp_file"/geosite/win-update | wc -l) 行"
+echo "文件 $temp_file/geosite/@cn 有 $(awk 1 "$temp_file"/geosite/@cn | wc -l) 行"
+echo "文件 $temp_file/geosite/*-cn 有 $(awk 1 "$temp_file"/geosite/*-cn | wc -l) 行"
+echo "文件 $temp_file/direct2 有 $(awk 1 "$temp_file"/direct2 | wc -l) 行"
+echo "文件 $temp_file/direct2.txt 有 $(awk 1 "$temp_file"/direct2.txt | wc -l) 行"
+echo
+echo "文件 $temp_file/ADG.txt 有 $(awk 1 "$temp_file"/ADG.txt | wc -l) 行"
+echo "文件 $target_file/ADG.txt 有 $(awk 1 "$target_file"/ADG.txt | wc -l) 行"
+echo
+
+rm -f "$temp_file"/geosite.dat "$temp_file"/geo
+
+# 检查命令a是否修改了目录z
+if [ -n "$(git -C $temp_file status --porcelain)" ]; then
+    echo "检测到变更。正在提交..."
+    git -C "$temp_file" add .
+    git -C "$temp_file" commit -m "更新 $(date "+%Y-%m-%d %H:%M:%S")"
+    echo "提交完成。"
+    echo "注意输入推送密码..."
+    git -C "$temp_file" push
+    echo "推送完成。"
+else
+    echo "没有变更。"
+fi
+
+# 目标文件示例
+
+#[/rm2100dd/]192.168.15.1 fd21:bda8:56ba::1
+#[/360.cn/]https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+#[/1.ip.skk.moe/]tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016
+#[/2.ip.skk.moe/]https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+
+#private.txt 约有150行 用时约0.2s
+#direct1.txt 约有300行 用时约0.6s
+#proxy.txt 约有700行 用时约13s
+#direct2.txt 约有12万行 用时约3m40s
+#ADG.txt 约有13万行
+#ADG_output.txt 约有13万行
