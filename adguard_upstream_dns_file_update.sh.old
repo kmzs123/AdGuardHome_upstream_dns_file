@@ -4,9 +4,11 @@
 temp_file=/root/geosite.git
 target_file=/root/Docker-compose/AdGuardHome/conf
 
+cd "$temp_file" || exit 1
+
 #-e https_proxy=127.0.0.1:10808 
 #https://ghfast.top/
-if ! wget https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat -O "$temp_file"/geosite.dat; then
+if ! wget -N -c https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat ; then
     echo "错误：下载规则文件失败！"
     rm -f "$temp_file"/geosite.dat
     exit 1
@@ -14,17 +16,17 @@ fi
 
 #-e https_proxy=127.0.0.1:10808 
 #https://gh.cytus.tk/
-if ! wget https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 -O "$temp_file"/geo; then
+if ! wget -N -c https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 ; then
     echo "错误：下载geo解包工具失败！"
-    rm -f "$temp_file"/geo
+    rm -f "$temp_file"/geo-linux-amd64
     exit 1
 fi
-chmod +x "$temp_file"/geo
+chmod +x "$temp_file"/geo-linux-amd64
 
 
 
 rm -rf "$temp_file"/geosite
-"$temp_file"/geo unpack site "$temp_file"/geosite.dat -d "$temp_file"/geosite
+"$temp_file"/geo-linux-amd64 unpack site "$temp_file"/geosite.dat -d "$temp_file"/geosite
 
 
 
@@ -248,10 +250,10 @@ convert_files() {
 	fi
 }
 
-time convert_files "$temp_file"/private "$temp_file"/private.txt 192.168.15.1 fd21:bda8:56ba::1
-time convert_files "$temp_file"/direct1 "$temp_file"/direct1.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
-time convert_files "$temp_file"/proxy "$temp_file"/proxy.txt tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116' 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016'
-time convert_files "$temp_file"/direct2 "$temp_file"/direct2.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+convert_files "$temp_file"/private "$temp_file"/private.txt 192.168.15.1 fd21:bda8:56ba::1
+convert_files "$temp_file"/direct1 "$temp_file"/direct1.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+convert_files "$temp_file"/proxy "$temp_file"/proxy.txt tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116' 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016'
+convert_files "$temp_file"/direct2 "$temp_file"/direct2.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
 
 # "合并"
 awk 1 "$temp_file"/private.txt "$temp_file"/direct1.txt "$temp_file"/proxy.txt "$temp_file"/direct2.txt > "$temp_file"/ADG.txt
@@ -301,13 +303,13 @@ echo "文件 $temp_file/ADG.txt 有 $(awk 1 "$temp_file"/ADG.txt | wc -l) 行"
 echo "文件 $target_file/ADG.txt 有 $(awk 1 "$target_file"/ADG.txt | wc -l) 行"
 echo
 
-rm -f "$temp_file"/geosite.dat "$temp_file"/geo
+
 
 # 检查命令a是否修改了目录z
 if [ -n "$(git -C $temp_file status --porcelain)" ]; then
     echo "检测到变更。正在提交..."
     git -C "$temp_file" add .
-    git -C "$temp_file" commit -s -m "更新 $(date "+%Y-%m-%d %H:%M:%S")"
+    git -C "$temp_file" commit -S -m "更新 $(date "+%Y-%m-%d %H:%M:%S")"
     echo "提交完成。"
     echo "注意输入推送密码..."
     git -C "$temp_file" push
