@@ -4,9 +4,11 @@
 temp_file=/root/geosite.git
 target_file=/root/Docker-compose/AdGuardHome/conf
 
+cd "$temp_file" || exit 1
+
 #-e https_proxy=127.0.0.1:10808 
 #https://ghfast.top/
-if ! wget -N -c https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat -O "$temp_file"/geosite.dat; then
+if ! wget -N -c https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat ; then
     echo "错误：下载规则文件失败！"
     rm -f "$temp_file"/geosite.dat
     exit 1
@@ -14,17 +16,17 @@ fi
 
 #-e https_proxy=127.0.0.1:10808 
 #https://gh.cytus.tk/
-if ! wget -N -c https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 -O "$temp_file"/geo; then
+if ! wget -N -c https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 ; then
     echo "错误：下载geo解包工具失败！"
-    rm -f "$temp_file"/geo
+    rm -f "$temp_file"/geo-linux-amd64
     exit 1
 fi
-chmod +x "$temp_file"/geo
+chmod +x "$temp_file"/geo-linux-amd64
 
 
 
 rm -rf "$temp_file"/geosite
-"$temp_file"/geo unpack site "$temp_file"/geosite.dat -d "$temp_file"/geosite
+"$temp_file"/geo-linux-amd64 unpack site "$temp_file"/geosite.dat -d "$temp_file"/geosite
 
 
 
