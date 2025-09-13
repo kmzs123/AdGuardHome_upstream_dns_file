@@ -185,16 +185,18 @@ convert_files "$temp_file"/direct2 "$temp_file"/direct2.txt https://dns.alidns.c
 awk 1 "$temp_file"/private.txt "$temp_file"/direct1.txt "$temp_file"/proxy.txt "$temp_file"/direct2.txt > "$temp_file"/ADG.txt
 
 # "去重"
-awk -F'[][]' '!seen[$2]++' "$temp_file"/ADG.txt > "$target_file"/ADG.txt
 awk -F'[][]' '!seen[$2]++' "$temp_file"/ADG.txt > "$temp_file"/ADG_output.txt
 
 # 添加上游DNS服务器配置
-cat >> "$target_file"/ADG.txt << 'EOF'
+cat >> "$temp_file"/ADG_output.txt << 'EOF'
 tcp://192.168.15.20:11114
 tcp://192.168.15.20:10014
 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116
 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016
 EOF
+
+
+awk 1 "$temp_file"/ADG_output.txt > "$target_file"/ADG.txt
 
 
 echo
