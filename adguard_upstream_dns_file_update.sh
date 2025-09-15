@@ -8,7 +8,7 @@ cd "$temp_file" || exit 1
 
 #-e https_proxy=127.0.0.1:10808 
 #https://ghfast.top/
-if ! wget -N -c https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat ; then
+if ! wget -N https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat ; then
     echo "错误：下载规则文件失败！"
     rm -f "$temp_file"/geosite.dat
     exit 1
@@ -16,7 +16,7 @@ fi
 
 #-e https_proxy=127.0.0.1:10808 
 #https://gh.cytus.tk/
-if ! wget -N -c https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 ; then
+if ! wget -N https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 ; then
     echo "错误：下载geo解包工具失败！"
     rm -f "$temp_file"/geo-linux-amd64
     exit 1
