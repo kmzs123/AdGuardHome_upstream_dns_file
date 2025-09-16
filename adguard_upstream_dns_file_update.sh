@@ -23,20 +23,14 @@ if ! wget -N https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest
 fi
 chmod +x "$temp_file"/geo-linux-amd64
 
-
-
 rm -rf "$temp_file"/geosite
 "$temp_file"/geo-linux-amd64 unpack site "$temp_file"/geosite.dat -d "$temp_file"/geosite
-
-
 
 cat > "$temp_file"/private << 'EOF'
 domain:mir3g70
 domain:rm2100dd
 EOF
 awk 1 "$temp_file"/geosite/private | awk '!seen[$0]++' >> "$temp_file"/private
-
-
 
 cat > "$temp_file"/direct1 << 'EOF'
 domain:360.cn
@@ -49,8 +43,6 @@ awk 1 "$temp_file"/geosite/apple-cn \
       "$temp_file"/geosite/google-cn | \
 awk '!seen[$0]++' >> "$temp_file"/direct1
 
-
-
 cat > "$temp_file"/proxy << 'EOF'
 domain:1.ip.skk.moe
 EOF
@@ -58,8 +50,6 @@ awk 1 "$temp_file"/geosite/gfw \
       "$temp_file"/geosite/google \
       "$temp_file"/geosite/greatfire | \
 awk '!seen[$0]++' >> "$temp_file"/proxy
-
-
 
 cat > "$temp_file"/direct2 << 'EOF'
 domain:2.ip.skk.moe
@@ -82,8 +72,6 @@ awk 1 "$temp_file"/geosite/category-games@cn \
       "$temp_file"/geosite/@cn \
       "$temp_file"/geosite/*-cn | \
 awk '!seen[$0]++' >> "$temp_file"/direct2
-
-
 
 # 优化后的文件转换函数
 convert_files() {
@@ -176,8 +164,6 @@ convert_files() {
       "$geosite_file" > "$adguard_home_file"
 }
 
-
-
 convert_files "$temp_file"/private "$temp_file"/private.txt 192.168.15.1 fd21:bda8:56ba::1
 convert_files "$temp_file"/direct1 "$temp_file"/direct1.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
 convert_files "$temp_file"/proxy "$temp_file"/proxy.txt tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116' 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016'
@@ -197,9 +183,7 @@ tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116
 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016
 EOF
 
-
 awk 1 "$temp_file"/ADG_output.txt > "$target_file"/ADG.txt
-
 
 echo
 echo "文件 $temp_file/geosite/private 有 $(awk 1 "$temp_file"/geosite/private | wc -l) 行"
@@ -230,8 +214,6 @@ echo
 echo "文件 $temp_file/ADG.txt 有 $(awk 1 "$temp_file"/ADG.txt | wc -l) 行"
 echo "文件 $target_file/ADG.txt 有 $(awk 1 "$target_file"/ADG.txt | wc -l) 行"
 echo
-
-
 
 # 检查命令a是否修改了目录z
 if [ -n "$(git -C $temp_file status --porcelain)" ]; then
