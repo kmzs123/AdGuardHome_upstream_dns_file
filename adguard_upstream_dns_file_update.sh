@@ -1,77 +1,31 @@
 #!/bin/bash
 
-#temp_file=$(mktemp -d /tmp/ADG.XXXXX)
-temp_file=/root/geosite.git
-target_file=/root/Docker-compose/AdGuardHome/conf
+LANGUAGE=zh_CN:zh
+LANG=zh_CN.UTF-8
+repo_dir=/root/geosite.git
+geosite_dir="$repo_dir"/geosite
 
-cd "$temp_file" || exit 1
+cd "$repo_dir" || exit 1
 
 #-e https_proxy=127.0.0.1:10808 
 #https://ghfast.top/
-if ! wget -N https://ghfast.top/https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat ; then
+if ! wget -N -e https_proxy=127.0.0.1:10808 https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat ; then
     echo "错误：下载规则文件失败！"
-    rm -f "$temp_file"/geosite.dat
+    rm -f "$repo_dir"/geosite.dat
     exit 1
 fi
 
 #-e https_proxy=127.0.0.1:10808 
 #https://gh.cytus.tk/
-if ! wget -N https://ghfast.top/https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 ; then
+if ! wget -N -e https_proxy=127.0.0.1:10808 https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 ; then
     echo "错误：下载geo解包工具失败！"
-    rm -f "$temp_file"/geo-linux-amd64
+    rm -f "$repo_dir"/geo-linux-amd64
     exit 1
 fi
-chmod +x "$temp_file"/geo-linux-amd64
+chmod +x "$repo_dir"/geo-linux-amd64
 
-rm -rf "$temp_file"/geosite
-"$temp_file"/geo-linux-amd64 unpack site "$temp_file"/geosite.dat -d "$temp_file"/geosite
-
-cat > "$temp_file"/private << 'EOF'
-domain:mir3g70
-domain:rm2100dd
-EOF
-awk 1 "$temp_file"/geosite/private | awk '!seen[$0]++' >> "$temp_file"/private
-
-cat > "$temp_file"/direct1 << 'EOF'
-domain:360.cn
-domain:alidns.com
-domain:doh.pub
-domain:dot.pub
-domain:onedns.net
-EOF
-awk 1 "$temp_file"/geosite/apple-cn \
-      "$temp_file"/geosite/google-cn | \
-awk '!seen[$0]++' >> "$temp_file"/direct1
-
-cat > "$temp_file"/proxy << 'EOF'
-domain:1.ip.skk.moe
-EOF
-awk 1 "$temp_file"/geosite/gfw \
-      "$temp_file"/geosite/google \
-      "$temp_file"/geosite/greatfire | \
-awk '!seen[$0]++' >> "$temp_file"/proxy
-
-cat > "$temp_file"/direct2 << 'EOF'
-domain:2.ip.skk.moe
-domain:cytus.tk
-domain:deepseek.com
-domain:kmzs123.cf
-domain:kmzs123.cn
-domain:kmzs123.tk
-domain:kmzs123.top
-domain:ping0.cc
-domain:vmshell.com
-EOF
-grep -i -h "@cn" "$temp_file"/geosite/category-games > "$temp_file"/geosite/category-games@cn
-grep -i -h "@cn" "$temp_file"/geosite/* > "$temp_file"/geosite/@cn
-awk 1 "$temp_file"/geosite/category-games@cn \
-      "$temp_file"/geosite/china-list \
-      "$temp_file"/geosite/cn \
-      "$temp_file"/geosite/tld-cn \
-      "$temp_file"/geosite/win-update \
-      "$temp_file"/geosite/@cn \
-      "$temp_file"/geosite/*-cn | \
-awk '!seen[$0]++' >> "$temp_file"/direct2
+rm -rf "$geosite_dir"
+"$repo_dir"/geo-linux-amd64 unpack site "$repo_dir"/geosite.dat -d "$geosite_dir"
 
 # 优化后的文件转换函数
 convert_files() {
@@ -164,65 +118,51 @@ convert_files() {
       "$geosite_file" > "$adguard_home_file"
 }
 
-convert_files "$temp_file"/private "$temp_file"/private.txt 192.168.15.1 fd21:bda8:56ba::1
-convert_files "$temp_file"/direct1 "$temp_file"/direct1.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
-convert_files "$temp_file"/proxy "$temp_file"/proxy.txt tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116' 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016'
-convert_files "$temp_file"/direct2 "$temp_file"/direct2.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
-
-# "合并"
-awk 1 "$temp_file"/private.txt "$temp_file"/direct1.txt "$temp_file"/proxy.txt "$temp_file"/direct2.txt > "$temp_file"/ADG.txt
+. "$repo_dir"/config.sh
 
 # "去重"
-awk -F'[][]' '!seen[$2]++' "$temp_file"/ADG.txt > "$temp_file"/ADG_output.txt
+awk -F'[][]' '/^\[\/.*\/\]/ {if (!seen[$2]++) print; next} 1' "$repo_dir"/ADG.txt > "$repo_dir"/ADG_output.txt
 
-# 添加上游DNS服务器配置
-cat >> "$temp_file"/ADG_output.txt << 'EOF'
-tcp://192.168.15.20:11114
-tcp://192.168.15.20:10014
-tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116
-tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016
-EOF
-
-awk 1 "$temp_file"/ADG_output.txt > "$target_file"/ADG.txt
+awk 1 "$repo_dir"/ADG_output.txt > "$target_file"/ADG.txt
 
 echo
-echo "文件 $temp_file/geosite/private 有 $(awk 1 "$temp_file"/geosite/private | wc -l) 行"
-echo "文件 $temp_file/private.txt 有 $(awk 1 "$temp_file"/private.txt | wc -l) 行"
+echo "文件 $geosite_dir/private 有 $(awk 1 "$geosite_dir"/private | wc -l) 行"
+echo "文件 $repo_dir/private.txt 有 $(awk 1 "$repo_dir"/private.txt | wc -l) 行"
 echo
-echo "文件 $temp_file/geosite/apple-cn 有 $(awk 1 "$temp_file"/geosite/apple-cn | wc -l) 行"
-echo "文件 $temp_file/geosite/google-cn 有 $(awk 1 "$temp_file"/geosite/google-cn | wc -l) 行"
-echo "文件 $temp_file/direct1 有 $(awk 1 "$temp_file"/direct1 | wc -l) 行"
-echo "文件 $temp_file/direct1.txt 有 $(awk 1 "$temp_file"/direct1.txt | wc -l) 行"
+echo "文件 $geosite_dir/apple-cn 有 $(awk 1 "$geosite_dir"/apple-cn | wc -l) 行"
+echo "文件 $geosite_dir/google-cn 有 $(awk 1 "$geosite_dir"/google-cn | wc -l) 行"
+echo "文件 $repo_dir/direct1 有 $(awk 1 "$repo_dir"/direct1 | wc -l) 行"
+echo "文件 $repo_dir/direct1.txt 有 $(awk 1 "$repo_dir"/direct1.txt | wc -l) 行"
 echo
-echo "文件 $temp_file/geosite/gfw 有 $(awk 1 "$temp_file"/geosite/gfw | wc -l) 行"
-echo "文件 $temp_file/geosite/google 有 $(awk 1 "$temp_file"/geosite/google | wc -l) 行"
-echo "文件 $temp_file/geosite/greatfire 有 $(awk 1 "$temp_file"/geosite/greatfire | wc -l) 行"
-echo "文件 $temp_file/proxy 有 $(awk 1 "$temp_file"/proxy | wc -l) 行"
-echo "文件 $temp_file/proxy.txt 有 $(awk 1 "$temp_file"/proxy.txt | wc -l) 行"
+echo "文件 $geosite_dir/gfw 有 $(awk 1 "$geosite_dir"/gfw | wc -l) 行"
+echo "文件 $geosite_dir/google 有 $(awk 1 "$geosite_dir"/google | wc -l) 行"
+echo "文件 $geosite_dir/greatfire 有 $(awk 1 "$geosite_dir"/greatfire | wc -l) 行"
+echo "文件 $repo_dir/proxy 有 $(awk 1 "$repo_dir"/proxy | wc -l) 行"
+echo "文件 $repo_dir/proxy.txt 有 $(awk 1 "$repo_dir"/proxy.txt | wc -l) 行"
 echo
-echo "文件 $temp_file/geosite/category-games 有 $(awk 1 "$temp_file"/geosite/category-games | wc -l) 行"
-echo "文件 $temp_file/geosite/category-games@cn 有 $(awk 1 "$temp_file"/geosite/category-games@cn | wc -l) 行"
-echo "文件 $temp_file/geosite/china-list 有 $(awk 1 "$temp_file"/geosite/china-list | wc -l) 行"
-echo "文件 $temp_file/geosite/cn 有 $(awk 1 "$temp_file"/geosite/cn | wc -l) 行"
-echo "文件 $temp_file/geosite/tld-cn 有 $(awk 1 "$temp_file"/geosite/tld-cn | wc -l) 行"
-echo "文件 $temp_file/geosite/win-update 有 $(awk 1 "$temp_file"/geosite/win-update | wc -l) 行"
-echo "文件 $temp_file/geosite/@cn 有 $(awk 1 "$temp_file"/geosite/@cn | wc -l) 行"
-echo "文件 $temp_file/geosite/*-cn 有 $(awk 1 "$temp_file"/geosite/*-cn | wc -l) 行"
-echo "文件 $temp_file/direct2 有 $(awk 1 "$temp_file"/direct2 | wc -l) 行"
-echo "文件 $temp_file/direct2.txt 有 $(awk 1 "$temp_file"/direct2.txt | wc -l) 行"
+echo "文件 $geosite_dir/category-games 有 $(awk 1 "$geosite_dir"/category-games | wc -l) 行"
+echo "文件 $geosite_dir/category-games@cn 有 $(awk 1 "$geosite_dir"/category-games@cn | wc -l) 行"
+echo "文件 $geosite_dir/china-list 有 $(awk 1 "$geosite_dir"/china-list | wc -l) 行"
+echo "文件 $geosite_dir/cn 有 $(awk 1 "$geosite_dir"/cn | wc -l) 行"
+echo "文件 $geosite_dir/tld-cn 有 $(awk 1 "$geosite_dir"/tld-cn | wc -l) 行"
+echo "文件 $geosite_dir/win-update 有 $(awk 1 "$geosite_dir"/win-update | wc -l) 行"
+echo "文件 $geosite_dir/@cn 有 $(awk 1 "$geosite_dir"/@cn | wc -l) 行"
+echo "文件 $geosite_dir/*-cn 有 $(awk 1 "$geosite_dir"/*-cn | wc -l) 行"
+echo "文件 $repo_dir/direct2 有 $(awk 1 "$repo_dir"/direct2 | wc -l) 行"
+echo "文件 $repo_dir/direct2.txt 有 $(awk 1 "$repo_dir"/direct2.txt | wc -l) 行"
 echo
-echo "文件 $temp_file/ADG.txt 有 $(awk 1 "$temp_file"/ADG.txt | wc -l) 行"
+echo "文件 $repo_dir/ADG.txt 有 $(awk 1 "$repo_dir"/ADG.txt | wc -l) 行"
 echo "文件 $target_file/ADG.txt 有 $(awk 1 "$target_file"/ADG.txt | wc -l) 行"
 echo
 
 # 检查命令a是否修改了目录z
-if [ -n "$(git -C $temp_file status --porcelain)" ]; then
+if [ -n "$(git -C $repo_dir status --porcelain)" ]; then
     echo "检测到变更。正在提交..."
-    git -C "$temp_file" add .
-    git -C "$temp_file" commit -S -m "更新 $(date "+%Y-%m-%d %H:%M:%S")"
+    git -C "$repo_dir" add .
+    git -C "$repo_dir" commit -S -m "更新 $(date "+%Y-%m-%d %H:%M:%S")"
     echo "提交完成。"
     echo "注意输入推送密码..."
-    git -C "$temp_file" push
+    git -C "$repo_dir" push
     echo "推送完成。"
 else
     echo "没有变更。"
