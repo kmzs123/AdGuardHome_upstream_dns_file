@@ -304,6 +304,7 @@ domain:apetube.com
 domain:api-secure.recaptcha.net
 domain:api-verify.recaptcha.net
 domain:api.ai
+domain:api.palworldgame.com
 domain:api.pureapk.com
 domain:api.recaptcha.net
 domain:api.steampowered.com
@@ -1159,6 +1160,7 @@ domain:csuchen.de
 domain:csw.org.uk
 domain:ct.org.tw
 domain:ctao.org
+domain:ctinets.com
 domain:ctinews.com
 domain:ctitv.com.tw
 domain:ctowc.org
@@ -2675,6 +2677,7 @@ domain:internet.org
 domain:internetdefenseleague.org
 domain:internetfreedom.org
 domain:internetpopculture.com
+domain:interseclab.org
 domain:inthenameofconfuciusmovie.com
 domain:invidio.us
 domain:inxian.com
@@ -3615,6 +3618,7 @@ domain:occupytiananmen.com
 domain:ocreampies.com
 domain:ocry.com
 domain:october-review.org
+domain:octocaptcha.com
 domain:oculus.com
 domain:oculuscdn.com
 domain:odysee.com
@@ -5100,7 +5104,6 @@ domain:ubddns.org
 domain:uberproxy.net
 domain:uc-japan.org
 domain:uchicago.edu
-domain:uderzo.it
 domain:udn.com
 domain:udn.com.tw
 domain:udnbkk.com
@@ -5469,6 +5472,7 @@ domain:wikilivres.info
 domain:wikimapia.org
 domain:wikimedia.org
 domain:wikinews.org
+domain:wikipedia.com
 domain:wikipedia.org
 domain:wikisource.org
 domain:wikiversity.org
