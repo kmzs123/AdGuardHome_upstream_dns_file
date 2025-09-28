@@ -21,7 +21,7 @@
       "servers": [ //必须，至少有一个
         "https://dns.alidns.com/dns-query",
         "https://doh.pub/dns-query",
-        "https://doh.360.cn",
+        "https://doh.360.cn/dns-query",
         "https://doh-pure.onedns.net/dns-query"
       ]
     },
@@ -82,7 +82,7 @@
       "dns_servers": [ // "dns_tag" "dns_servers" 二选一或都没有，都没有时为 "default_servers" 。如果 "dns_tag" 和 "dns_servers" 都配置了优先使用 "dns_servers" 并输出警告
         "https://dns.alidns.com/dns-query",
         "https://doh.pub/dns-query",
-        "https://doh.360.cn",
+        "https://doh.360.cn/dns-query",
         "https://doh-pure.onedns.net/dns-query"
       ],
       "rules": [
