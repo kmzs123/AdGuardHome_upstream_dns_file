@@ -194,9 +194,9 @@ awk '!seen[$0]++' >> "$repo_dir"/direct2 #去除重复
 
 # convert_files geosite格式文件 AdGuardHome格式文件 上游dns1 上游dns2 上游dns3 ...
 convert_files "$repo_dir"/private "$repo_dir"/private.txt 192.168.15.1 fd21:bda8:56ba::1
-convert_files "$repo_dir"/direct1 "$repo_dir"/direct1.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+convert_files "$repo_dir"/direct1 "$repo_dir"/direct1.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn/dns-query https://doh-pure.onedns.net/dns-query
 convert_files "$repo_dir"/proxy "$repo_dir"/proxy.txt tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116' 'tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016'
-convert_files "$repo_dir"/direct2 "$repo_dir"/direct2.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+convert_files "$repo_dir"/direct2 "$repo_dir"/direct2.txt https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn/dns-query https://doh-pure.onedns.net/dns-query
 
 # "合并"
 awk 1 "$repo_dir"/private.txt "$repo_dir"/direct1.txt "$repo_dir"/proxy.txt "$repo_dir"/direct2.txt > "$repo_dir"/ADG.txt
@@ -260,9 +260,9 @@ echo
 # 目标文件示例
 
 #[/rm2100dd/]192.168.15.1 fd21:bda8:56ba::1
-#[/360.cn/]https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+#[/360.cn/]https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn/dns-query https://doh-pure.onedns.net/dns-query
 #[/1.ip.skk.moe/]tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016
-#[/2.ip.skk.moe/]https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
+#[/2.ip.skk.moe/]https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn/dns-query https://doh-pure.onedns.net/dns-query
 
 #private.txt 约有150行
 #direct1.txt 约有300行
