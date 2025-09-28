@@ -101,12 +101,22 @@ convert_files() {
 cd "$repo_dir" || exit 1
 
 # https://ghfast.top/
+# wget -N 参数表示文件未更新时跳过下载
 if ! wget -N -e https_proxy="$https_proxy" https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat ; then
     echo "错误：下载规则文件失败！"
     rm -f "$repo_dir"/geosite.dat
     exit 1
 fi
 
+# 对于不同普通，需要修改对应下载路径
+#https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-linux-amd64
+#https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-linux-arm64
+#https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-linux-armv7
+#https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-macos-amd64
+#https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-macos-arm64
+#https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-windows-amd64.exe
+#https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-windows-arm64.exe
+# wget -N 参数表示文件未更新时跳过下载
 if ! wget -N -e https_proxy="$https_proxy" https://github.com/MetaCubeX/geo/releases/latest/download/geo-linux-amd64 ; then
     echo "错误：下载geo解包工具失败！"
     rm -f "$repo_dir"/geo-linux-amd64
@@ -114,6 +124,7 @@ if ! wget -N -e https_proxy="$https_proxy" https://github.com/MetaCubeX/geo/rele
 fi
 chmod +x "$repo_dir"/geo-linux-amd64
 
+# 对于不同普通，需要修改对应文件名
 rm -rf "$geosite_dir"
 "$repo_dir"/geo-linux-amd64 unpack site "$repo_dir"/geosite.dat -d "$geosite_dir"
 
@@ -253,9 +264,9 @@ echo
 #[/1.ip.skk.moe/]tcp://192.168.15.20:11114 tcp://192.168.15.20:10014 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116 tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016
 #[/2.ip.skk.moe/]https://dns.alidns.com/dns-query https://doh.pub/dns-query https://doh.360.cn https://doh-pure.onedns.net/dns-query
 
-#private.txt 约有150行 用时约0.2s
-#direct1.txt 约有300行 用时约0.6s
-#proxy.txt 约有700行 用时约13s
-#direct2.txt 约有12万行 用时约3m40s
+#private.txt 约有150行
+#direct1.txt 约有300行
+#proxy.txt 约有700行
+#direct2.txt 约有12万行
 #ADG.txt 约有13万行
 #ADG_output.txt 约有13万行
