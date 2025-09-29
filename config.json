@@ -1,1 +1,128 @@
-JSON5: invalid end of input at 1:1
+{
+	"dns_servers": {
+		"default_servers": {
+			"description": "默认上游DNS",
+			"servers": [
+				"tcp://192.168.15.20:11114",
+				"tcp://192.168.15.20:10014",
+				"tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116",
+				"tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016"
+			]
+		},
+		"private": {
+			"description": "内网",
+			"servers": [
+				"192.168.15.1",
+				"fd21:bda8:56ba::1"
+			]
+		},
+		"direct": {
+			"description": "直连",
+			"servers": [
+				"https://dns.alidns.com/dns-query",
+				"https://doh.pub/dns-query",
+				"https://doh.360.cn/dns-query",
+				"https://doh-pure.onedns.net/dns-query"
+			]
+		},
+		"proxy": {
+			"description": "代理",
+			"servers": [
+				"tcp://192.168.15.20:11114",
+				"tcp://192.168.15.20:10014",
+				"tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116",
+				"tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016"
+			]
+		},
+		"example": {
+			"description": "AdGuardHome提供的dns服务器示例",
+			"servers": [
+				"94.140.14.140",
+				"2a10:50c0::1:ff",
+				"94.140.14.140:53",
+				"[2a10:50c0::1:ff]:53",
+				"udp://dns-unfiltered.adguard.com",
+				"tcp://94.140.14.140",
+				"tcp://[2a10:50c0::1:ff]",
+				"tcp://94.140.14.140:53",
+				"tcp://[2a10:50c0::1:ff]:53",
+				"tcp://dns-unfiltered.adguard.com",
+				"tls://dns-unfiltered.adguard.com",
+				"https://dns-unfiltered.adguard.com/dns-query",
+				"h3://dns-unfiltered.adguard.com/dns-query",
+				"quic://dns-unfiltered.adguard.com",
+				"sdns://..."
+			]
+		}
+	},
+	"rule_groups": [
+		{
+			"name": "private",
+			"description": "本地设备域名",
+			"dns_tag": "private",
+			"rules": [
+				"domain:mir3g70",
+				"domain:rm2100dd",
+				"#geosite:private",
+				"geosite:ErrorGeoSiteName",
+				"localhost.lan",
+				" localhost1.lan",
+				"localhost2.lan:80",
+				"localhost3.lan:70000",
+				"local host4.lan",
+				"例子.中国"
+			]
+		},
+		{
+			"name": "direct1",
+			"dns_tag": "direct",
+			"rules": [
+				"domain:360.cn",
+				"domain:alidns.com",
+				"domain:doh.pub",
+				"domain:dot.pub",
+				"domain:onedns.net",
+				"geosite:apple-cn",
+				"geosite:google-cn"
+			]
+		},
+		{
+			"name": "proxy",
+			"dns_tag": "proxy",
+			"rules": [
+				"domain:1.ip.skk.moe",
+				"geosite:gfw",
+				"geosite:google",
+				"geosite:greatfire",
+				"regex:^r+[0-9]+(---|\\.)sn-(2x3|ni5|j5o)\\w{5}\\.googlevideo\\.com$"
+			]
+		},
+		{
+			"name": "direct2",
+			"dns_servers": [
+				"https://dns.alidns.com/dns-query",
+				"https://doh.pub/dns-query",
+				"https://doh.360.cn/dns-query",
+				"https://doh-pure.onedns.net/dns-query"
+			],
+			"rules": [
+				"domain:2.ip.skk.moe",
+				"domain:cytus.tk",
+				"domain:deepseek.com",
+				"domain:kmzs123.cf",
+				"domain:kmzs123.cn",
+				"domain:kmzs123.tk",
+				"domain:kmzs123.top",
+				"domain:ping0.cc",
+				"domain:vmshell.com",
+				"geosite:category-games@cn",
+				"geosite:china-list",
+				"geosite:cn",
+				"geosite:tld-cn",
+				"geosite:win-update",
+				"geosite:@cn",
+				"geosite:*-cn"
+			]
+		}
+	]
+}
