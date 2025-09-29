@@ -33,7 +33,23 @@
         "tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:11116",
         "tcp://[fd21:bda8:56ba:0:222:4dff:fea7:674d]:10016"
       ]
-    } //还可以有更多dns服务器组，在规则中使用 "dns_tag" 引用
+    },
+    "example": { //还可以有更多dns服务器组，在规则中使用 "dns_tag" 引用
+      "description": "AdGuardHome提供的dns服务器示例",
+      "servers": [
+        "94.140.14.140", "2a10:50c0::1:ff", //常规 DNS（通过 UDP）
+        "94.140.14.140:53", "[2a10:50c0::1:ff]:53", //常规 DNS（通过 UDP，带端口）
+        "udp://dns-unfiltered.adguard.com", //常规 DNS（通过 UDP，主机名）
+        "tcp://94.140.14.140", "tcp://[2a10:50c0::1:ff]", //常规 DNS（通过 TCP）
+        "tcp://94.140.14.140:53", "tcp://[2a10:50c0::1:ff]:53", //常规 DNS（通过 TCP，带端口）
+        "tcp://dns-unfiltered.adguard.com", //常规 DNS（通过 TCP、主机名）
+        "tls://dns-unfiltered.adguard.com", //加密的 DNS-over-TLS
+        "https://dns-unfiltered.adguard.com/dns-query", //加密的 DNS-over-HTTPS
+        "h3://dns-unfiltered.adguard.com/dns-query", //加密的 DNS-over-HTTPS，强制使用 HTTP/3，并且不回退到 HTTP/2 及以下版本
+        "quic://dns-unfiltered.adguard.com", //加密的 DNS-over-QUIC
+        "sdns://..." //DNSCrypt 或 DNS-over-HTTPS 解析器的 DNS 标记
+      ]
+    }
   },
   "rule_groups": [ //按顺序
     {
