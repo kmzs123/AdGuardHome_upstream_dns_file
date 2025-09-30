@@ -113,11 +113,11 @@
         "domain:vmshell.com",
         "geosite:category-games@cn", // geosite 的特殊用法，不再是加载整个文件，只加载行尾存在与 @cn 类似的 @标签 的特定规则
         "geosite:china-list", // geosite 里的规则集也是由 "domain:" "full:" "regexp:" "regex:" 开头，或是域名（有时还会有端口）。
-        "geosite:cn",         //总的来说，与我们的规则语法一致，甚至会嵌套调用 geosite: 规则集
+        "geosite:cn",         //总的来说，与我们的规则语法一致，但不会嵌套调用 geosite: 规则集
         "geosite:tld-cn",
         "geosite:win-update",// xray 对预定义域名列表的介绍：此列表预置于每一个 Xray 的安装包中，文件名为 geosite.dat 。这个文件包含了一些常见的域名，使用方式： geosite:filename ，如 geosite:google 表示对文件内符合 google 内包含的域名，进行路由筛选或 DNS 筛选。
         "geosite:@cn", //本脚本添加的特殊 geosite 语法，表示加载 "$geosite_dir"/ 目录下所有存在与 @cn 类似的 @标签 的规则
-        "geosite:*-cn" //实际实现上与普通 geosite 语法类似，只不过这是有通配符，加载使用 `awk 1 "$geosite_dir"/*-cn` 命令能读取的规则，不限定 "-cn" ，允许任何类似情况，如 geolocation* a*b 等这个命令能读取的规则
+        "geosite:*-cn" //实际实现上与普通 geosite 语法类似，只不过这是有通配符，加载使用 `awk 1 "$geosite_dir"/*-cn` 命令能读取的规则，不限定 "-cn" ，允许任何类似情况，如 "geolocation*" "a*b" "a?b" 等 awk 命令能读取的规则，实际上无需对这些情况进行额外处理，可以直接使用与普通 geosite 语法相同的处理方式
       ]
     }
   ] //允许更多规则组

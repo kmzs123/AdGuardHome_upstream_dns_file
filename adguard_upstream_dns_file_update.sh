@@ -108,7 +108,7 @@ if ! wget -N -e https_proxy="$https_proxy" https://github.com/Loyalsoldier/v2ray
     exit 1
 fi
 
-# 对于不同普通，需要修改对应下载路径
+# 对于不同平台，需要修改对应下载路径
 #https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-linux-amd64
 #https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-linux-arm64
 #https://github.com/MetaCubeX/geo/releases/download/v1.1/geo-linux-armv7
@@ -124,7 +124,7 @@ if ! wget -N -e https_proxy="$https_proxy" https://github.com/MetaCubeX/geo/rele
 fi
 chmod +x "$repo_dir"/geo-linux-amd64
 
-# 对于不同普通，需要修改对应文件名
+# 对于不同平台，需要修改对应文件名
 rm -rf "$geosite_dir"
 "$repo_dir"/geo-linux-amd64 unpack site "$repo_dir"/geosite.dat -d "$geosite_dir"
 
